@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcryptjs';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class UserService {
@@ -36,5 +37,17 @@ export class UserService {
     newUser = await this.userRepository.save(newUser);
 
     return newUser;
+  }
+
+  async login(loginDto: LoginDto) {
+    const { email, password } = loginDto;
+
+    const user = await this.userRepository.findOne({ where: { email } })
+    if (!user) throw new BadRequestException("invalid email or password");
+    
+    const isPasswordMatch = await bcrypt.compare(password, user.password)
+    if (!isPasswordMatch) throw new BadRequestException("invalid email or password");
+
+    return user;
   }
 }
