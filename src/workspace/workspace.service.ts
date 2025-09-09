@@ -17,34 +17,22 @@ export class WorkspaceService {
     @InjectRepository(Role)
     private roleRepo: Repository<Role>,
   ) { }
-  // async create(createWorkspaceDto: CreateWorkspaceDto , ) {
-  //   // Step 1: Create the workspace
-  //   const workspace = this.workspaceRepo.create({
-  //     workspace_name: createWorkspaceDto.workspace_name,
-  //     description: createWorkspaceDto.description,
-  //     owner: createWorkspaceDto.owner
-  //       ? { user_id: createWorkspaceDto.owner.user_id }
-  //       : undefined,
-  //   });
+  async create(createWorkspaceDto: CreateWorkspaceDto , ) {
+    // Step 1: Create the workspace
+    const workspace = this.workspaceRepo.create({
+      name: createWorkspaceDto.name,
+      description: createWorkspaceDto.description,
+      
+    });
 
-  //   const savedWorkspace = await this.workspaceRepo.save(workspace);
+    const savedWorkspace = await this.workspaceRepo.save(workspace);
 
-  //   // Step 2: Add members if provided
-  //   if (createWorkspaceDto.members && createWorkspaceDto.members.length > 0) {
-  //     const members = createWorkspaceDto.members.map(memberDto =>
-  //       this.memberRepo.create({
-  //         workspace_id: savedWorkspace.workspace_id,
-  //         user_id: memberDto.user_id,
-  //         ownerUserId: savedWorkspace.owner_user_id,
-  //       }),
-  //     );
+    // Step 2: Add members if provided
+   
 
-  //     await this.memberRepo.save(members);
-  //   }
-
-  //   // Step 3: Return workspace with owner + members
-  //   return this.getWorkspaceWithOwnerAndMembers(savedWorkspace.workspace_id);
-  // }
+    // Step 3: Return workspace with owner + members
+    return this.getWorkspaceWithOwnerAndMembers(savedWorkspace.id);
+  }
 
 
 

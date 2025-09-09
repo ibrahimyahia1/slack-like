@@ -5,7 +5,7 @@ import { Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGenerated
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
-    user_id: number;
+    id: number;
 
     @Column({ nullable: true })
     user_name: string;
