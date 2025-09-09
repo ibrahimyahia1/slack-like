@@ -28,7 +28,7 @@ import { Role } from './role/entities/role.entity';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
         entities: [User, Workspace, WorkspaceMember, Role],
-        synchronize: false,
+        synchronize: true,
         migrationsRun: true
       }),
       inject: [ConfigService]

@@ -7,19 +7,16 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ nullable: true })
-    user_name: string;
+    @Column({ nullable: true, length: '150' })
+    username: string;
 
-    @Column({ unique: true })
+    @Column({ unique: true, length: '250' })
     email: string;
-
-    @Column()
-    role: string
 
     @Column()
     password: string;
 
-    @Column()
+    @Column({ nullable: true})
     displayed_name: string;
 
     @Column({ nullable: true })
