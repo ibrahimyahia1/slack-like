@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,7 +14,7 @@ export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
   ) { }
 
   async create(createUserDto: CreateUserDto) {
@@ -22,7 +22,7 @@ export class UserService {
     return await this.userRepository.save(user)
   }
 
-  async register(registerDto: RegisterDto): Promise<AccessTokenType>{
+  async register(registerDto: RegisterDto): Promise<AccessTokenType> {
     const { email, password, username } = registerDto;
 
     const userFromDb = await this.userRepository.findOne({ where: { email } });
@@ -40,7 +40,7 @@ export class UserService {
 
     newUser = await this.userRepository.save(newUser);
 
-    const accessToken = await this.generateJWT({id: newUser.id})
+    const accessToken = await this.generateJWT({ id: newUser.id })
 
     return { accessToken };
   }
@@ -54,13 +54,20 @@ export class UserService {
     const isPasswordMatch = await bcrypt.compare(password, user.password)
     if (!isPasswordMatch) throw new BadRequestException("invalid email or password");
 
-    const accessToken = await this.generateJWT({id: user.id})
+    const accessToken = await this.generateJWT({ id: user.id })
 
     return { accessToken };
+  }
+
+  async getCurrentUser(id: number) {
+    
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) throw new NotFoundException("user not found");
+    return user;
   }
 
   private generateJWT(payload: JWTPayloadType): Promise<string> {
     return this.jwtService.signAsync(payload)
   }
-  
+
 }

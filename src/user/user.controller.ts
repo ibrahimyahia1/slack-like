@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Headers, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { AuthGuard } from './guards/auth.guard';
+import { CurrentUser } from './decorators/current-user.decorator';
+import * as types from './utils/types';
 
 @Controller('users')
 export class UserController {
@@ -19,5 +21,12 @@ export class UserController {
   login(@Body() body: LoginDto) {
     return this.userService.login(body);
   }
+
+  @Get("current-user")
+  @UseGuards(AuthGuard)
+  getCurrentUser(@CurrentUser() payload: types.JWTPayloadType) {
+    return this.userService.getCurrentUser(payload.id)
+  }
+
 
 }
