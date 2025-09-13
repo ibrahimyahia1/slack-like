@@ -28,5 +28,11 @@ export class UserController {
     return this.userService.getCurrentUser(payload.id)
   }
 
+  @Get()
+  @UseGuards(AuthGuard)
+  getAllUsers() { 
+    return this.userService.getAll()
+  }
+
 
 }

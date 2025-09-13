@@ -59,7 +59,7 @@ export class UserService {
     return { accessToken };
   }
 
-  async getCurrentUser(id: number) {
+  async getCurrentUser(id: number): Promise<User> {
     
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) throw new NotFoundException("user not found");
@@ -68,6 +68,10 @@ export class UserService {
 
   private generateJWT(payload: JWTPayloadType): Promise<string> {
     return this.jwtService.signAsync(payload)
+  }
+
+  getAll(): Promise<User[]> {
+    return this.userRepository.find()
   }
 
 }
