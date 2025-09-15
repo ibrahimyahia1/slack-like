@@ -60,7 +60,7 @@ export class UserService {
   }
 
   async getCurrentUser(id: number): Promise<User> {
-    
+
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) throw new NotFoundException("user not found");
     return user;

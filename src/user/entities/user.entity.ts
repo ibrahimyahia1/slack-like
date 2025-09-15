@@ -16,7 +16,7 @@ export class User {
     @Column()
     password: string;
 
-    @Column({ nullable: true})
+    @Column({ nullable: true })
     displayed_name: string;
 
     @Column({ nullable: true })
@@ -34,7 +34,7 @@ export class User {
     @OneToMany(() => WorkspaceMember, member => member.user)
     workspaceMembers: WorkspaceMember[];
 
-    @OneToMany(() => Workspace, (workspace) => workspace.ownerUser)
+    @OneToMany(() => Workspace, (workspace) => workspace.owner)
     ownedWorkspaces: Workspace[];
 
 }

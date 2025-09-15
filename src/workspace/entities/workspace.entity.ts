@@ -7,16 +7,16 @@ import { BaseEntity } from "./base-entity";
 export class Workspace extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
-    
-    @Column()
+
+    @Column({ nullable: true })
     name: string;
-    
-    @Column()
+
+    @Column({ nullable: true })
     description: string
-    
+
     @ManyToOne(() => User, user => user.ownedWorkspaces, { nullable: false })
-    @JoinColumn({name: 'owner_user_id'})
-    ownerUser: User;
+    @JoinColumn({ name: 'owner_user_id' })
+    owner: User;
 
     @OneToMany(() => WorkspaceMember, member => member.workspace)
     members: WorkspaceMember[];

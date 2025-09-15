@@ -6,7 +6,7 @@ export class UpdateWorkspaceDto extends PartialType(CreateWorkspaceDto) {
    
     @IsOptional()
     @IsString()
-    workspace_name;
+    name;
 
     @IsOptional()
     @IsString()
