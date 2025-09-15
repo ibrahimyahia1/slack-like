@@ -48,7 +48,10 @@ export class UserService {
   async login(loginDto: LoginDto): Promise<AccessTokenType> {
     const { email, password } = loginDto;
 
-    const user = await this.userRepository.findOne({ where: { email } })
+    const user = await this.userRepository.findOne({
+      where: { email },
+      select: ["id", "email", "password"], 
+    });
     if (!user) throw new BadRequestException("invalid email or password");
 
     const isPasswordMatch = await bcrypt.compare(password, user.password)

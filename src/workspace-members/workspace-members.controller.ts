@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { WorkspaceMembersService } from './workspace-members.service';
 import { CreateWorkspaceMemberDto } from './dto/create-workspace-member.dto';
 
@@ -9,6 +9,11 @@ export class WorkspaceMembersController {
   @Post()
   create(@Body() createWorkspaceMemberDto: CreateWorkspaceMemberDto) {
     return this.workspaceMembersService.create(createWorkspaceMemberDto);
+  }
+
+  @Get()
+  getAllMembers() {
+    return this.workspaceMembersService.getAll()
   }
 
 }

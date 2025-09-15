@@ -34,4 +34,8 @@ export class WorkspaceMembersService {
     return await this.workspaceMemberRepository.save(wsMember);
   }
 
+  getAll() {
+    return this.workspaceMemberRepository.find()
+  }
+
 }

@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { WorkspaceMember } from "src/workspace-members/entities/workspace-member.entity";
 import { Workspace } from "src/workspace/entities/workspace.entity";
 import { Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
@@ -13,7 +14,8 @@ export class User {
     @Column({ unique: true, length: '250' })
     email: string;
 
-    @Column()
+    @Exclude({ toPlainOnly: true })
+    @Column({ select: false })
     password: string;
 
     @Column({ nullable: true })
