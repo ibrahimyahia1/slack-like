@@ -1,4 +1,5 @@
 import { Exclude } from "class-transformer";
+import { ChannelMember } from "src/channel-members/entities/channel-member.entity";
 import { WorkspaceMember } from "src/workspace-members/entities/workspace-member.entity";
 import { Workspace } from "src/workspace/entities/workspace.entity";
 import { Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
@@ -38,5 +39,8 @@ export class User {
 
     @OneToMany(() => Workspace, (workspace) => workspace.owner)
     ownedWorkspaces: Workspace[];
+
+    @OneToOne(() => ChannelMember, channelMember => channelMember.user)
+    channelMember: ChannelMember;
 
 }

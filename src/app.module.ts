@@ -13,6 +13,8 @@ import { Workspace } from './workspace/entities/workspace.entity';
 import { WorkspaceMember } from './workspace-members/entities/workspace-member.entity';
 import { RoleModule } from './role/role.module';
 import { Role } from './role/entities/role.entity';
+import { Channel } from './channel/entities/channel.entity';
+import { ChannelMember } from './channel-members/entities/channel-member.entity';
 
 
 @Module({
@@ -27,7 +29,7 @@ import { Role } from './role/entities/role.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [User, Workspace, WorkspaceMember, Role],
+        entities: [User, Workspace, WorkspaceMember, Role, Channel, ChannelMember],
         synchronize: true,
         migrationsRun: true
       }),

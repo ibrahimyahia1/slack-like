@@ -1,5 +1,6 @@
+import { ChannelMember } from "src/channel-members/entities/channel-member.entity";
 import { WorkspaceMember } from "src/workspace-members/entities/workspace-member.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Role { 
@@ -11,4 +12,7 @@ export class Role {
 
     @OneToMany(() => WorkspaceMember, wm => wm.role)
     workspaceMembers: WorkspaceMember[];
+
+    @OneToOne(() => ChannelMember, channelMember => channelMember.user)
+    channelMember: ChannelMember;
 }

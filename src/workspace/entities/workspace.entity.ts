@@ -2,6 +2,7 @@ import { User } from "src/user/entities/user.entity";
 import { WorkspaceMember } from "src/workspace-members/entities/workspace-member.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BaseEntity } from "./base-entity";
+import { Channel } from "src/channel/entities/channel.entity";
 
 @Entity()
 export class Workspace extends BaseEntity {
@@ -20,4 +21,7 @@ export class Workspace extends BaseEntity {
 
     @OneToMany(() => WorkspaceMember, member => member.workspace)
     members: WorkspaceMember[];
+
+    @OneToMany(() => Channel, channel => channel.workspace)
+    channel: Channel[];
 }

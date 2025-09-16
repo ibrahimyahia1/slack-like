@@ -1,11 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Channel } from './entities/channel.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ChannelService {
-  create(createChannelDto: CreateChannelDto) {
-    return 'This action adds a new channel';
+  constructor(@InjectRepository(Channel) private readonly channelRepo : Repository<Channel>){}
+
+  async create(createChannelDto: CreateChannelDto) {
+    const channel = this.channelRepo.create(createChannelDto)
+    return await this.channelRepo.save(channel)
   }
 
   findAll() {
