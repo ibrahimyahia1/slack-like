@@ -1,4 +1,4 @@
-import { IsString } from "class-validator";
+import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreateChannelDto {
     @IsString()
@@ -9,4 +9,7 @@ export class CreateChannelDto {
 
     @IsString()
     status: string
+     
+    @IsNotEmpty()
+    workspace_id: number
 }
