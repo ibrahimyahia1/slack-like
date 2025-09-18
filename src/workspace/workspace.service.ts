@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
@@ -87,6 +87,35 @@ export class WorkspaceService {
       },
     });
     return workspace;
+  }
+
+
+  async deleteMember(workspaceId: number,memberId: number, currentUserId: number) {
+    const workspace = await this.workspaceRepo.findOne({
+      where: { id: workspaceId },
+      relations: {
+        owner: true
+      }
+    });
+
+    if (!workspace) {
+      throw new NotFoundException('Workspace not found');
+    }
+
+    if (workspace.owner.id !== currentUserId) {
+      throw new ForbiddenException('Only the workspace owner can remove members');
+    }
+
+    const member = await this.memberRepo.findOne({
+      where: { id: memberId, workspace: { id: workspaceId } },
+    });
+
+    if (!member) {
+      throw new NotFoundException('Member not found in workspace');
+    }
+
+    return this.memberRepo.remove(member);
+  
   }
 
   // async update(id: number, updateWorkspaceDto: UpdateWorkspaceDto): Promise<Workspace> {

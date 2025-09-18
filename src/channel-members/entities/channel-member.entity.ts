@@ -1,7 +1,7 @@
 import { Channel } from "src/channel/entities/channel.entity";
 import { Role } from "src/role/entities/role.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity()
@@ -13,7 +13,7 @@ export class ChannelMember {
     @JoinColumn({ name: "user_id" })
     user: User;
 
-    @OneToOne(() => Role, role => role.channelMember)
+    @ManyToOne(() => Role, role => role.channelMember)
     @JoinColumn({ name: "role_id" })
     role: Role;
 

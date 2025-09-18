@@ -26,8 +26,15 @@ export class WorkspaceController {
     return this.workspaceService.getAllWithMembers();
   }
 
-  // @Put(':workspace_id')
-  // async updatedWorkspace(@Param('workspace_id') workspace_id: number, @Body() body: UpdateWorkspaceDto) {
-  //   return this.workspaceService.update(workspace_id, body)
-  // }
+
+  @Delete(':workspaceId/members/:memberId')
+  @UseGuards(AuthGuard)
+  async removeMember(
+    @Param('workspaceId') workspaceId: number,
+    @Param('memberId') memberId: number,
+    @Req() req: any,
+  ) {
+    const currentUserId = req.user.id; 
+    return this.workspaceService.deleteMember(workspaceId, memberId, currentUserId);
+  }
 }
