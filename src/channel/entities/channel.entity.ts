@@ -15,13 +15,13 @@ export class Channel extends BaseEntity{
     @Column()
     channelType: string
 
-    @Column()
+    @Column({ default: 'active' })
     status: string
 
     @ManyToOne(() => Workspace, workspace => workspace.channel)
     @JoinColumn({ name: "workspace_id" })
     workspace: Workspace;
 
-    @OneToMany(() => ChannelMember, channelMember => channelMember.channel)
-    channelMember: ChannelMember;
+    @OneToMany(() => ChannelMember, members => members.channel)
+    members: ChannelMember[];
 }

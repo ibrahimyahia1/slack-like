@@ -9,15 +9,15 @@ export class ChannelMember {
     @PrimaryGeneratedColumn()
     id: number
 
-    @OneToOne(() => User, user => user.channelMember)
+    @ManyToOne(() => User, user => user.channelMember, { eager: true })
     @JoinColumn({ name: "user_id" })
     user: User;
 
-    @ManyToOne(() => Role, role => role.channelMember)
+    @ManyToOne(() => Role, role => role.channelMember, { eager: true })
     @JoinColumn({ name: "role_id" })
     role: Role;
 
-    @OneToOne(() => Channel, channel => channel.channelMember)
+    @ManyToOne(() => Channel, channel => channel.members)
     @JoinColumn({ name: "channel_id" })
     channel: Channel;
 }

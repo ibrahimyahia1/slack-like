@@ -15,7 +15,7 @@ export class Workspace extends BaseEntity {
     @Column({ nullable: true })
     description: string
 
-    @ManyToOne(() => User, user => user.ownedWorkspaces, { nullable: false })
+    @ManyToOne(() => User, user => user.ownedWorkspaces, { nullable: true })
     @JoinColumn({ name: 'owner_user_id' })
     owner: User;
 
