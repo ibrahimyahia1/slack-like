@@ -22,7 +22,7 @@ export class WorkspaceService {
   ) { }
   async createWorkspace(dto: CreateWorkspaceDto, ownerId: number) {
     return this.dataSource.transaction(async (manager) => {
-      
+
       const owner = await manager.findOne(User, { where: { id: ownerId } });
       if (!owner) throw new NotFoundException("Owner not found");
 
@@ -40,7 +40,7 @@ export class WorkspaceService {
       }
 
       const member = manager.create(WorkspaceMember, {
-        workspace,            
+        workspace,
         user: owner,
         role: ownerRole,
       });
@@ -57,10 +57,6 @@ export class WorkspaceService {
       });
     });
   }
-
-
-
-
 
   async getWorkspaceWithOwnerAndMembers(workspaceId: number): Promise<Workspace> {
     const workspace = await this.workspaceRepo.findOne({
@@ -94,7 +90,7 @@ export class WorkspaceService {
   }
 
 
-  async deleteMember(workspaceId: number,memberId: number, currentUserId: number) {
+  async deleteMember(workspaceId: number, memberId: number, currentUserId: number) {
     const workspace = await this.workspaceRepo.findOne({
       where: { id: workspaceId },
       relations: {
@@ -118,8 +114,10 @@ export class WorkspaceService {
       throw new NotFoundException('Member not found in workspace');
     }
 
-    return this.memberRepo.remove(member);
-  
+    await this.memberRepo.softRemove(member);
+
+    return { message: 'This workspace member deleted (soft)' }
+
   }
 
   // async update(id: number, updateWorkspaceDto: UpdateWorkspaceDto): Promise<Workspace> {
