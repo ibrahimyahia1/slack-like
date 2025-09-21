@@ -59,12 +59,29 @@ export class ChannelService {
   }
 
 
-  findAll() {
-    return `This action returns all channel`;
+  async findAll() {
+    const channels = await this.channelRepo.find({
+      relations: {
+        members: {
+          user: true,
+          role: true
+        }
+      }
+    })
+    return channels;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} channel`;
+  async findOne(channelId: number) {
+    const channel = await this.channelRepo.findOne({
+      where: { id: channelId },
+      relations: {
+        members: {
+          user: true,
+          role: true
+        }
+      }
+  })
+    return channel;
   }
 
   update(id: number, updateChannelDto: UpdateChannelDto) {
