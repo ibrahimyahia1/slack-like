@@ -1,12 +1,13 @@
 import { Role } from "src/role/entities/role.entity";
 import { User } from "src/user/entities/user.entity";
 import { Workspace } from "src/workspace/entities/workspace.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity()
+@Unique(["workspace","user"])
 export class WorkspaceMember {
     @PrimaryGeneratedColumn()
-    id: number;    
+    id: number;
 
     @ManyToOne(() => Workspace, workspace => workspace.members, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'workspace_id' })
@@ -17,6 +18,6 @@ export class WorkspaceMember {
     user: User;
 
     @ManyToOne(() => Role, role => role.workspaceMembers, { eager: true })
-    @JoinColumn({name: 'role_id'})
+    @JoinColumn({ name: 'role_id' })
     role: Role;
 }

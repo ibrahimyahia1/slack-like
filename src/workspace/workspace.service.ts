@@ -22,38 +22,42 @@ export class WorkspaceService {
   ) { }
   async createWorkspace(dto: CreateWorkspaceDto, ownerId: number) {
     return this.dataSource.transaction(async (manager) => {
-     
+      
       const owner = await manager.findOne(User, { where: { id: ownerId } });
-      if (!owner) throw new Error('Owner not found');
+      if (!owner) throw new NotFoundException("Owner not found");
 
-     
       const workspace = manager.create(Workspace, {
         name: dto.name,
         description: dto.description,
-        owner: owner,
-        members:[]
+        owner,
       });
       await manager.save(workspace);
 
-      
-      let ownerRole = await manager.findOne(Role, { where: { name: 'Owner' } });
+      let ownerRole = await manager.findOne(Role, { where: { name: "Owner" } });
       if (!ownerRole) {
-        ownerRole = manager.create(Role, { name: 'Owner' });
+        ownerRole = manager.create(Role, { name: "Owner" });
         await manager.save(ownerRole);
       }
 
-      
       const member = manager.create(WorkspaceMember, {
-       // workspace: { id: workspace.id },
-        user: {id : owner.id},
+        workspace,            
+        user: owner,
         role: ownerRole,
       });
       await manager.save(member);
-      workspace.members.push(member)
 
-      return workspace
+      return await manager.findOne(Workspace, {
+        where: { id: workspace.id },
+        relations: {
+          members: {
+            user: true,
+            role: true,
+          },
+        },
+      });
     });
   }
+
 
 
 
