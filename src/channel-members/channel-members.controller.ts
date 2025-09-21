@@ -18,8 +18,8 @@ export class ChannelMembersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.channelMembersService.findOne(+id);
+  findOne(@Param('id') memberId: number) {
+    return this.channelMembersService.findOne(memberId);
   }
 
   @Patch(':id')

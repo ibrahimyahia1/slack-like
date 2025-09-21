@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Channel } from 'src/channel/entities/channel.entity';
 import { Role } from 'src/role/entities/role.entity';
+import { channel } from 'diagnostics_channel';
 
 @Injectable()
 export class ChannelMembersService {
@@ -43,19 +44,33 @@ export class ChannelMembersService {
       role
     });
 
-    // if (channelMember) {
-    //   throw new BadRequestException("this member already exist")
-    // }
+    if (channelMember) {
+      throw new BadRequestException("this member already exist")
+    }
 
     return await this.channelMemberRepo.save(channelMember);
   }
 
-  findAll() {
-    return `This action returns all channelMembers`;
+  async findAll() {
+    const channelMember = await this.channelMemberRepo.find({
+      relations: {
+        channel: true,
+        user: true
+      }
+    })
+    return channelMember;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} channelMember`;
+  async findOne(memberId: number) {
+    const member = await this.channelMemberRepo.findOne({
+      where: { id: memberId },
+      relations: {
+        channel: true,
+        user: true
+      }
+    })
+    
+    return member;
   }
 
   update(id: number, updateChannelMemberDto: UpdateChannelMemberDto) {
