@@ -1,10 +1,10 @@
 import { Role } from "src/role/entities/role.entity";
 import { User } from "src/user/entities/user.entity";
 import { Workspace } from "src/workspace/entities/workspace.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity()
-@Unique(["workspace","user"])
+@Index("UQ_workspace_user_active", ["workspace", "user"], { unique: true, where: "deleted_at IS NULL" })
 export class WorkspaceMember {
     @PrimaryGeneratedColumn()
     id: number;
