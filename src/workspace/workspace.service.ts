@@ -120,12 +120,12 @@ export class WorkspaceService {
 
   }
 
-  // async update(id: number, updateWorkspaceDto: UpdateWorkspaceDto): Promise<Workspace> {
-  //   const updatedWorkspace = await this.workspaceRepo.findOneBy({ id })
-  //   if (!updatedWorkspace) {
-  //     throw new NotFoundException('Workspace not found!')
-  //   }
-  //   Object.assign(updatedWorkspace, updateWorkspaceDto);
-  //   return this.workspaceRepo.save(updatedWorkspace)
-  // }
+  async update(id: number, updateWorkspaceDto: UpdateWorkspaceDto): Promise<Workspace> {
+    const updatedWorkspace = await this.workspaceRepo.findOneBy({ id })
+    if (!updatedWorkspace) {
+      throw new NotFoundException('Workspace not found!')
+    }
+    Object.assign(updatedWorkspace, updateWorkspaceDto);
+    return this.workspaceRepo.save(updatedWorkspace)
+  }
 }

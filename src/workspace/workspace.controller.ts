@@ -37,4 +37,13 @@ export class WorkspaceController {
     const currentUserId = req.user.id; 
     return this.workspaceService.deleteMember(workspaceId, memberId, currentUserId);
   }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard)
+  async update(
+    @Param('id') id: number,
+    @Body() updateWorkspaceDto: UpdateWorkspaceDto,
+  ) {
+    return this.workspaceService.update(id, updateWorkspaceDto);
+  }
 }
