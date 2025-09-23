@@ -15,6 +15,11 @@ import { RoleModule } from './role/role.module';
 import { Role } from './role/entities/role.entity';
 import { Channel } from './channel/entities/channel.entity';
 import { ChannelMember } from './channel-members/entities/channel-member.entity';
+import { MessageModule } from './message/message.module';
+import { MessageReadsModule } from './message-reads/message-reads.module';
+import { MessageReactionModule } from './message-reaction/message-reaction.module';
+import { MessageMentionsModule } from './message-mentions/message-mentions.module';
+import { StaredMessageModule } from './stared-message/stared-message.module';
 
 
 @Module({
@@ -37,7 +42,12 @@ import { ChannelMember } from './channel-members/entities/channel-member.entity'
     }),
     WorkspaceModule,
     WorkspaceMembersModule,
-    RoleModule
+    RoleModule,
+    MessageModule,
+    MessageReadsModule,
+    MessageReactionModule,
+    MessageMentionsModule,
+    StaredMessageModule
   ],
   controllers: [AppController],
   providers: [AppService],
