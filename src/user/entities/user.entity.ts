@@ -1,5 +1,10 @@
 import { Exclude } from "class-transformer";
 import { ChannelMember } from "src/channel-members/entities/channel-member.entity";
+import { MessageMention } from "src/message-mentions/entities/message-mention.entity";
+import { MessageReaction } from "src/message-reaction/entities/message-reaction.entity";
+import { MessageRead } from "src/message-reads/entities/message-read.entity";
+import { Message } from "src/message/entities/message.entity";
+import { StaredMessage } from "src/stared-message/entities/stared-message.entity";
 import { WorkspaceMember } from "src/workspace-members/entities/workspace-member.entity";
 import { Workspace } from "src/workspace/entities/workspace.entity";
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
@@ -42,5 +47,20 @@ export class User {
 
     @ManyToOne(() => ChannelMember, channelMember => channelMember.user)
     channelMember: ChannelMember;
+
+    @OneToMany(() => Message, message => message.sender)
+    messages: Message[]
+
+    @OneToMany(() => MessageReaction, messageReaction => messageReaction.user)
+    reactions: MessageReaction[]
+
+    @OneToMany(() => MessageRead, messageRead => messageRead.user)
+    reads: MessageRead[]
+
+    @OneToMany(() => MessageMention, messageMention => messageMention.user)
+    mentions: MessageMention[]
+
+    @OneToMany(() => StaredMessage, staredMessage => staredMessage.user)
+    stars: StaredMessage[]
 
 }
