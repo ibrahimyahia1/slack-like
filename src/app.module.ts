@@ -20,6 +20,11 @@ import { MessageReadsModule } from './message-reads/message-reads.module';
 import { MessageReactionModule } from './message-reaction/message-reaction.module';
 import { MessageMentionsModule } from './message-mentions/message-mentions.module';
 import { StaredMessageModule } from './stared-message/stared-message.module';
+import { Message } from './message/entities/message.entity';
+import { MessageRead } from './message-reads/entities/message-read.entity';
+import { StaredMessage } from './stared-message/entities/stared-message.entity';
+import { MessageMention } from './message-mentions/entities/message-mention.entity';
+import { MessageReaction } from './message-reaction/entities/message-reaction.entity';
 
 
 @Module({
@@ -34,7 +39,7 @@ import { StaredMessageModule } from './stared-message/stared-message.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [User, Workspace, WorkspaceMember, Role, Channel, ChannelMember],
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true,
         migrationsRun: true
       }),
