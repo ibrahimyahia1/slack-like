@@ -1,1 +1,4 @@
-export class CreateMessageReactionDto {}
+export class CreateMessageReactionDto {
+    messageId: number;
+    emoji: string;
+}

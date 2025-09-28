@@ -1,1 +1,4 @@
-export class CreateMessageReadDto {}
+export class CreateMessageReadDto {
+    channelId: number;
+    lastReadMessageId: number;
+}

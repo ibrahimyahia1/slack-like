@@ -39,7 +39,7 @@ import { MessageReaction } from './message-reaction/entities/message-reaction.en
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        entities: [User, Workspace, WorkspaceMember, Role, Channel, ChannelMember, Message, MessageMention, MessageRead, MessageReaction, StaredMessage],
         synchronize: true,
         migrationsRun: true
       }),

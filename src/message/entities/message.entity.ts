@@ -31,6 +31,9 @@ export class Message {
     @Column({ default: false })
     isDeleted: boolean;
 
+    @Column()
+    clientMessageId: number
+
     @CreateDateColumn()
     createdAt: Date;
 
