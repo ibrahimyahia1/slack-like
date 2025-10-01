@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
@@ -19,7 +19,7 @@ export class MessageService {
     @InjectDataSource() private readonly dataSource: DataSource,
   ) { }
 
-  async sendMessage(senderId: number ,createMessageDto: CreateMessageDto) {
+  async sendMessage(senderId: number, createMessageDto: CreateMessageDto) {
     return await this.dataSource.transaction(async manager => {
       const msg = manager.create(Message, {
         content: createMessageDto.content,
@@ -38,10 +38,7 @@ export class MessageService {
         await manager.save(mentions)
       }
 
-      const read = manager.create(MessageRead, {
-        message: saved,
-        user: { id: senderId} as User
-      })
+      const read = manager.create(MessageRead, { message: saved, user: { id: senderId } as User })
       await manager.save(read);
 
       const result = await manager.findOne(Message, {
@@ -53,6 +50,37 @@ export class MessageService {
       return result
     })
   }
+
+  async editMessage(editorId: number, messageId: number, newContent: string) {
+    const message = await this.messageRepo.findOne({ where: { id: messageId }, relations: { sender: true } });
+
+    if (!message) {
+      throw new NotFoundException('Message not found')
+    }
+
+    if (message.sender.id !== editorId) {
+      throw new ForbiddenException('Not message owner')
+    }
+    message.content = newContent;
+    message.editedAt = new Date();
+
+    return await this.messageRepo.save(message);
+  }
+
+  async softDeleteMessage(requesterId: number, messageId: number) {
+    const message = await this.messageRepo.findOne({ where: { id: messageId }, relations: { sender: true } });
+    if (!message) { 
+      throw new NotFoundException("Message not found")
+    }
+    
+    if (message.sender.id !== requesterId) {
+      throw new ForbiddenException("Not message owner")
+    }
+    message.isDeleted = true;
+    return await this.messageRepo.save(message)
+  }
+
+  async loadMessages(channelId: number, limit = 50, beforeMessageId){}
 
   findAll() {
     return `This action returns all message`;

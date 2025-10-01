@@ -25,6 +25,7 @@ import { MessageRead } from './message-reads/entities/message-read.entity';
 import { StaredMessage } from './stared-message/entities/stared-message.entity';
 import { MessageMention } from './message-mentions/entities/message-mention.entity';
 import { MessageReaction } from './message-reaction/entities/message-reaction.entity';
+import { ChatModule } from './chat/chat.module';
 
 
 @Module({
@@ -52,7 +53,8 @@ import { MessageReaction } from './message-reaction/entities/message-reaction.en
     MessageReadsModule,
     MessageReactionModule,
     MessageMentionsModule,
-    StaredMessageModule
+    StaredMessageModule,
+    ChatModule
   ],
   controllers: [AppController],
   providers: [AppService],
