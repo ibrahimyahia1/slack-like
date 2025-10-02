@@ -1,8 +1,9 @@
 import { Message } from "src/message/entities/message.entity";
 import { User } from "src/user/entities/user.entity";
-import { CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity()
+@Unique(['message', 'user'])
 export class StaredMessage {
     @PrimaryGeneratedColumn()
     id: number;

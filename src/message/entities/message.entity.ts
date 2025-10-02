@@ -4,9 +4,11 @@ import { MessageReaction } from "src/message-reaction/entities/message-reaction.
 import { MessageRead } from "src/message-reads/entities/message-read.entity";
 import { StaredMessage } from "src/stared-message/entities/stared-message.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
 
 @Entity()
+@Unique(['clientMessageId', 'sender'])
+@Index(['channel', 'createdAt'])
 export class Message {
     @PrimaryGeneratedColumn()
     id: number;
@@ -18,7 +20,7 @@ export class Message {
     contentType: string;
 
     @ManyToOne(() => User, user => user.messages, { onDelete: 'CASCADE' })
-    @JoinColumn({name: "sender_id"})
+    @JoinColumn({ name: "sender_id" })
     sender: User;
 
     @ManyToOne(() => Channel, channel => channel.messages, { onDelete: 'CASCADE' })
@@ -32,7 +34,7 @@ export class Message {
     isDeleted: boolean;
 
     @Column()
-    clientMessageId: number
+    clientMessageId: string
 
     @CreateDateColumn()
     createdAt: Date;
