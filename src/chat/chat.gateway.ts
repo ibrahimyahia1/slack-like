@@ -1,6 +1,56 @@
-import { WebSocketGateway } from "@nestjs/websockets";
+import { JwtService } from "@nestjs/jwt";
+import { InjectRepository } from "@nestjs/typeorm";
+import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import { ChannelMember } from "src/channel-members/entities/channel-member.entity";
+import { MessageReactionService } from "src/message-reaction/message-reaction.service";
+import { MessageReadsService } from "src/message-reads/message-reads.service";
+import { MessageService } from "src/message/message.service";
+import { Repository } from "typeorm";
 
-@WebSocketGateway()
-export class ChatGateway {
+@WebSocketGateway({ cors: true })
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+    @WebSocketServer() server: Server;
+
+    constructor(
+        private readonly jwtService: JwtService,
+        private readonly messageService: MessageService,
+        private readonly reactionService: MessageReactionService,
+        private readonly readService: MessageReadsService,
+        @InjectRepository(ChannelMember) private readonly channelMemberRepo: Repository<ChannelMember>,
+    ) { }
+
+    handleConnection(client: Socket) {
+        try {
+            const token = client.handshake.auth?.token || client.handshake.headers['authorization']?.split(' ')[1];
+            const payload = this.jwtService.verify(token);
+            client.data.user = { id: payload.sub, username: payload.username };
+            client.join(`user_${payload.sub}`);
+        } catch (err) {
+            client.emit('error', 'Authentication failed');
+            client.disconnect(true);
+        }
+    }
+    handleDisconnect(client: Socket) {
+        const userId = client.data?.user?.id;
+        if (userId) {
+            this.server.emit('user_offline', { userId });
+        }
+    }
+
+    @SubscribeMessage('join_channel')
+    async handleJoin(client: Socket, payload: { channelId: number }) {
+        const userId = client.data.user.id;
+        const membership = await this.channelMemberRepo.findOne({ where: { channel: { id: payload.channelId } as any, user: { id: userId } as any } })
+        if (!membership) return client.emit('error', 'not a channel member');
+        client.join(`channel_${payload.channelId}`);
+        this.server.to(`channel_${payload.channelId}`).emit('presence_update', { userId, online: true }); 
+    }
+
+
+    @SubscribeMessage('leave_channel')
+    async handleLeave(client: Socket, payload: { channelId: number }) {
+        client.leave(`channel_${payload.channelId}`);
+        this.server.to(`channel_${payload.channelId}`).emit('presence_update', { userId: client.data.user.id, online: false });
+    }
 }

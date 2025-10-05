@@ -18,6 +18,8 @@ import { MessageReactionService } from "src/message-reaction/message-reaction.se
 import { MessageReadsService } from "src/message-reads/message-reads.service";
 import { StaredMessageService } from "src/stared-message/stared-message.service";
 import { MessageMentionsService } from "src/message-mentions/message-mentions.service";
+import { JwtModule } from "@nestjs/jwt";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 
 @Module({
     imports: [TypeOrmModule.forFeature([
@@ -29,7 +31,17 @@ import { MessageMentionsService } from "src/message-mentions/message-mentions.se
         Channel,
         User,
         ChannelMember,
-    ]),
+    ]), JwtModule.registerAsync({
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: (config: ConfigService) => {
+            return {
+                global: true,
+                secret: config.get<string>("JWT_SECRET"),
+                signOptions: { expiresIn: config.get<string>("JWT_EXPIRES_IN") }
+            }
+        }
+    }),
     ],
     providers: [
         ChatGateway,
