@@ -53,4 +53,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.leave(`channel_${payload.channelId}`);
         this.server.to(`channel_${payload.channelId}`).emit('presence_update', { userId: client.data.user.id, online: false });
     }
+
+
+    @SubscribeMessage('send_message')
+    async handleSendMessage(client: Socket, payload: any) {
+        const userId = client.data.user.id;
+        const isMember = await this.channelMemberRepo.findOne({ where: { channel: { id: payload.channelId } as any, user: { id: userId } as any } });
+        if (!isMember) return client.emit('error', 'member not found')
+        const msg = await this.messageService.sendMessage(userId, payload);
+        this.server.to(`channel_${payload.channelId}`).emit('new message', msg); 
+        if (payload.mentions?.length) {
+            for (const uid of payload.mentions) {
+                this.server.to(`user_${uid}`).emit('mentioned', { by: userId, message: msg, channelId: payload.channelId }); 
+            }
+        }
+    }
 }

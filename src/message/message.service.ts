@@ -80,7 +80,6 @@ export class MessageService {
     return await this.messageRepo.save(message)
   }
 
-  async loadMessages(channelId: number, limit = 50, beforeMessageId){}
 
   findAll() {
     return `This action returns all message`;
