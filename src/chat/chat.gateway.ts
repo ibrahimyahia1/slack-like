@@ -44,7 +44,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const membership = await this.channelMemberRepo.findOne({ where: { channel: { id: payload.channelId } as any, user: { id: userId } as any } })
         if (!membership) return client.emit('error', 'not a channel member');
         client.join(`channel_${payload.channelId}`);
-        this.server.to(`channel_${payload.channelId}`).emit('presence_update', { userId, online: true }); 
+        this.server.to(`channel_${payload.channelId}`).emit('presence_update', { userId, online: true });
     }
 
 
@@ -61,11 +61,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const isMember = await this.channelMemberRepo.findOne({ where: { channel: { id: payload.channelId } as any, user: { id: userId } as any } });
         if (!isMember) return client.emit('error', 'member not found')
         const msg = await this.messageService.sendMessage(userId, payload);
-        this.server.to(`channel_${payload.channelId}`).emit('new message', msg); 
+        this.server.to(`channel_${payload.channelId}`).emit('new message', msg);
         if (payload.mentions?.length) {
             for (const uid of payload.mentions) {
-                this.server.to(`user_${uid}`).emit('mentioned', { by: userId, message: msg, channelId: payload.channelId }); 
+                this.server.to(`user_${uid}`).emit('mentioned', { by: userId, message: msg, channelId: payload.channelId });
             }
         }
+    }
+
+    @SubscribeMessage('add_reaction')
+    async handleReaction(client: Socket, data: { messageId: number, emoji: string, channelId: number }) {
+        const userId = client.data.user.id;
+        const result = await this.reactionService.createReaction(userId, data.messageId, data.emoji);
+        this.server.to(`channel_${data.channelId}`).emit('message_reaction', result)
     }
 }
