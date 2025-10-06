@@ -70,9 +70,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     @SubscribeMessage('add_reaction')
-    async handleReaction(client: Socket, data: { messageId: number, emoji: string, channelId: number }) {
+    async handleReaction(client: Socket, data: { messageId: number; emoji: string; channelId: number }) {
         const userId = client.data.user.id;
         const result = await this.reactionService.createReaction(userId, data.messageId, data.emoji);
         this.server.to(`channel_${data.channelId}`).emit('message_reaction', result)
+    }
+
+    @SubscribeMessage('make_as_read')
+    async handleMakeAsRead(client: Socket, data: { channelId: number; lastReadMessageId: number }) {
+        const userId = client.data.user.id;
+        const res = await this.readService.markAsRead(userId, data.channelId, data.lastReadMessageId);
+        this.server.to(`channel_${data.channelId}`).emit('message_read', res);
     }
 }
