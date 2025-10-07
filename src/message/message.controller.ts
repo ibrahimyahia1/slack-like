@@ -1,16 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
+import { AuthGuard } from 'src/user/guards/auth.guard';
 
 @Controller('message')
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
-  // @Post()
-  // create(@Body() createMessageDto: CreateMessageDto) {
-  //   return this.messageService.sendMessage(createMessageDto);
-  // }
+  @Post(':channelId')
+  @UseGuards(AuthGuard)
+  async createMessage(
+    @Param('channelId') channelId: number,
+    @Body() dto: CreateMessageDto,
+    @Req() req: any,
+  ) {
+    const senderId = req.user.id;
+    return this.messageService.createMessage(senderId, {
+      ...dto,
+      channelId,
+    });
+  }
 
   @Get()
   findAll() {

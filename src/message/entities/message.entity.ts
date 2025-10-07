@@ -17,7 +17,7 @@ export class Message {
     content: string;
 
     @Column({ nullable: true })
-    contentType: string;
+    contentType?: string;
 
     @ManyToOne(() => User, user => user.messages, { onDelete: 'CASCADE' })
     @JoinColumn({ name: "sender_id" })
@@ -33,8 +33,8 @@ export class Message {
     @Column({ default: false })
     isDeleted: boolean;
 
-    @Column()
-    clientMessageId: string
+    @Column({ nullable: true })
+    clientMessageId?: string;
 
     @CreateDateColumn()
     createdAt: Date;

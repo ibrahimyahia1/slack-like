@@ -3,21 +3,62 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Message } from './entities/message.entity';
-import { Repository } from 'typeorm';
+import { DeepPartial, In, Repository } from 'typeorm';
 import { MessageMention } from 'src/message-mentions/entities/message-mention.entity';
 import { MessageRead } from 'src/message-reads/entities/message-read.entity';
 import { DataSource } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Channel } from 'src/channel/entities/channel.entity';
+import { MessageReaction } from 'src/message-reaction/entities/message-reaction.entity';
 
 @Injectable()
 export class MessageService {
   constructor(
     @InjectRepository(Message) private readonly messageRepo: Repository<Message>,
+    @InjectRepository(Channel) private readonly channelRepo: Repository<Channel>,
     @InjectRepository(MessageMention) private readonly mentionRepo: Repository<MessageMention>,
     @InjectRepository(MessageRead) private readonly messageReadRepo: Repository<MessageRead>,
     @InjectDataSource() private readonly dataSource: DataSource,
   ) { }
+
+
+  async createMessage(senderId: number, dto: CreateMessageDto) {
+    return this.dataSource.transaction(async (manager) => {
+      const message = manager.create(Message, {
+        content: dto.content,
+        contentType: dto.contentType,
+        sender: { id: senderId } as User,
+        channel: { id: dto.channelId } as Channel,
+        clientMessageId: dto.clientMessageId,
+      } as DeepPartial<Message>);
+      const savedMessage = await manager.save(message);
+
+      let mentionedUsers: User[] = [];
+      if (dto.mentions?.length) {
+        mentionedUsers = await manager.getRepository(User).find({
+          where: { id: In(dto.mentions) },
+        });
+
+        const mentions = mentionedUsers.map((user) =>
+          manager.create(MessageMention, {
+            message: savedMessage,
+            user,
+          }),
+        );
+        await manager.save(mentions);
+      }
+
+      const fullMessage = await manager.findOne(Message, {
+        where: { id: savedMessage.id },
+        relations: ['sender'],
+      });
+
+      return {
+        ...fullMessage,
+        mentions: mentionedUsers
+      };
+    });
+  }
 
   async sendMessage(senderId: number, createMessageDto: CreateMessageDto) {
     return await this.dataSource.transaction(async manager => {
@@ -69,10 +110,10 @@ export class MessageService {
 
   async softDeleteMessage(requesterId: number, messageId: number) {
     const message = await this.messageRepo.findOne({ where: { id: messageId }, relations: { sender: true } });
-    if (!message) { 
+    if (!message) {
       throw new NotFoundException("Message not found")
     }
-    
+
     if (message.sender.id !== requesterId) {
       throw new ForbiddenException("Not message owner")
     }
@@ -81,8 +122,14 @@ export class MessageService {
   }
 
 
-  findAll() {
-    return `This action returns all message`;
+  async findAll() {
+    return await this.messageRepo.find({
+      relations: {
+        sender: true,
+        mentions: {
+          user: true
+        }
+    }})
   }
 
   findOne(id: number) {
