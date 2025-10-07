@@ -126,6 +126,7 @@ export class MessageService {
     return await this.messageRepo.find({
       relations: {
         sender: true,
+        reactions: true,
         mentions: {
           user: true
         }

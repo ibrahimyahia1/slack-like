@@ -7,10 +7,10 @@ import { UpdateMessageReactionDto } from './dto/update-message-reaction.dto';
 export class MessageReactionController {
   constructor(private readonly messageReactionService: MessageReactionService) {}
 
-  // @Post()
-  // create(@Body() createMessageReactionDto: CreateMessageReactionDto) {
-  //   return this.messageReactionService.create(createMessageReactionDto);
-  // }
+  @Post()
+  create(@Body() createMessageReactionDto: CreateMessageReactionDto) {
+    return this.messageReactionService.addReaction(createMessageReactionDto);
+  }
 
   @Get()
   findAll() {

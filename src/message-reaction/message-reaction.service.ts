@@ -1,16 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMessageReactionDto } from './dto/create-message-reaction.dto';
 import { UpdateMessageReactionDto } from './dto/update-message-reaction.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessageReaction } from './entities/message-reaction.entity';
 import { DataSource, Repository } from 'typeorm';
+import { Message } from 'src/message/entities/message.entity';
 
 @Injectable()
 export class MessageReactionService {
   constructor(
     @InjectRepository(MessageReaction) private readonly reactionRepo: Repository<MessageReaction>,
+    @InjectRepository(Message) private readonly messageRepo: Repository<Message>,
     private readonly dataSource: DataSource,
   ) { }
+
+  async addReaction(dto: CreateMessageReactionDto) {
+    const message = await this.messageRepo.findOne({ where: { id: dto.messageId } })
+    if (!message) throw new NotFoundException('This message not found!');
+
+    const reaction = this.reactionRepo.create({
+      emoji: dto.emoji,
+      message: { id: dto.messageId }
+    })
+
+    return this.reactionRepo.save(reaction);
+  }
 
   async createReaction(userId: number, messageId: number, emoji: string) {
     return await this.dataSource.transaction(async manager => {
