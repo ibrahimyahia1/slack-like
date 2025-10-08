@@ -7,11 +7,11 @@ import { MessageMention } from 'src/message-mentions/entities/message-mention.en
 import { Message } from './entities/message.entity';
 import { Channel } from 'src/channel/entities/channel.entity';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthGuard } from 'src/user/guards/auth.guard';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { User } from 'src/user/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Message, MessageMention, MessageRead, Channel]),
+  imports: [TypeOrmModule.forFeature([Message, MessageMention, MessageRead, Channel, User]),
   JwtModule.registerAsync({
     imports: [ConfigModule],
     inject: [ConfigService],

@@ -18,6 +18,7 @@ export class MessageService {
     @InjectRepository(Channel) private readonly channelRepo: Repository<Channel>,
     @InjectRepository(MessageMention) private readonly mentionRepo: Repository<MessageMention>,
     @InjectRepository(MessageRead) private readonly messageReadRepo: Repository<MessageRead>,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectDataSource() private readonly dataSource: DataSource,
   ) { }
 
@@ -130,13 +131,44 @@ export class MessageService {
         mentions: {
           user: true
         }
-    }})
+      }
+    })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} message`;
+  async getMessagesBySender(senderId: number) {
+    return this.messageRepo.find({
+      where: { sender: { id: senderId } },
+      relations: {
+        sender: true,
+        channel: true,
+        mentions: true,
+        reactions: true
+      },
+      order: { createdAt: 'DESC' },
+    });
   }
 
+  async getMessages(channelId: number, senderId?: number) {
+    const filters: any = {
+      channel: { id: channelId },
+    };
+
+    if (senderId) {
+      filters.sender = { id: senderId };
+    }
+
+    return this.messageRepo.find({
+      where: filters,
+      relations: {
+        sender: true,
+        channel: true,
+        mentions: true,
+        reactions: true
+      },
+      order: { createdAt: 'DESC' }, 
+    });
+  }
+  
   update(id: number, updateMessageDto: UpdateMessageDto) {
     return `This action updates a #${id} message`;
   }
