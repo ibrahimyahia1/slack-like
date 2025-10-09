@@ -51,7 +51,7 @@ export class MessageService {
 
       const fullMessage = await manager.findOne(Message, {
         where: { id: savedMessage.id },
-        relations: ['sender'],
+        relations: {sender: true},
       });
 
       return {
