@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { Message } from "src/message/entities/message.entity";
 import { User } from "src/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
@@ -22,7 +23,8 @@ export class MessageReaction {
     @CreateDateColumn()
     reacted_at: Date;
 
-    @Column({ default: false })
+    @Exclude({ toPlainOnly: true })
+    @Column({ select: false, default: false })
     isDeleted: boolean;
 
     @UpdateDateColumn()

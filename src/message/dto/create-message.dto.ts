@@ -1,3 +1,4 @@
+import { PartialType } from "@nestjs/mapped-types";
 import { IsArray, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateMessageDto {
@@ -18,3 +19,5 @@ export class CreateMessageDto {
     @IsArray()
     mentions?: number[];
 }
+
+export class UpdateMessageDto extends PartialType(CreateMessageDto) { }

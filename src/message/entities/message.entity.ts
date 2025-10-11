@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { Channel } from "src/channel/entities/channel.entity";
 import { MessageMention } from "src/message-mentions/entities/message-mention.entity";
 import { MessageReaction } from "src/message-reaction/entities/message-reaction.entity";
@@ -29,8 +30,9 @@ export class Message {
 
     @Column({ default: false })
     isPinned: boolean;
-
-    @Column({ default: false })
+    
+    @Exclude({ toPlainOnly: true })
+    @Column({ select: false, default: false })
     isDeleted: boolean;
 
     @Column({ nullable: true })

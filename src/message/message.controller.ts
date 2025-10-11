@@ -40,9 +40,11 @@ export class MessageController {
     return this.messageService.getMessages(channelId, userId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMessageDto: UpdateMessageDto) {
-    return this.messageService.update(+id, updateMessageDto);
+  @Patch(':messageId')
+  @UseGuards(AuthGuard)
+  update(@Param('messageId') messageId: number, @Req() req: any, @Body() updateDto: UpdateMessageDto) {
+    const editorId = req.user.id;
+    return this.messageService.editMessage(editorId, messageId, updateDto);
   }
 
   @Delete(':id')

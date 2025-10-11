@@ -51,7 +51,7 @@ export class MessageService {
 
       const fullMessage = await manager.findOne(Message, {
         where: { id: savedMessage.id },
-        relations: {sender: true},
+        relations: { sender: true },
       });
 
       return {
@@ -93,17 +93,13 @@ export class MessageService {
     })
   }
 
-  async editMessage(editorId: number, messageId: number, newContent: string) {
+  async editMessage(editorId: number, messageId: number, updateDto: UpdateMessageDto) {
     const message = await this.messageRepo.findOne({ where: { id: messageId }, relations: { sender: true } });
+    if (!message) throw new NotFoundException('This message not found!');
 
-    if (!message) {
-      throw new NotFoundException('Message not found')
-    }
+    if (message.sender.id !== editorId) throw new ForbiddenException('Not message owner');
 
-    if (message.sender.id !== editorId) {
-      throw new ForbiddenException('Not message owner')
-    }
-    message.content = newContent;
+    Object.assign(message, updateDto);
     message.editedAt = new Date();
 
     return await this.messageRepo.save(message);
@@ -111,15 +107,12 @@ export class MessageService {
 
   async softDeleteMessage(requesterId: number, messageId: number) {
     const message = await this.messageRepo.findOne({ where: { id: messageId }, relations: { sender: true } });
-    if (!message) {
-      throw new NotFoundException("Message not found")
-    }
+    if (!message) throw new NotFoundException('This message not found!');
 
-    if (message.sender.id !== requesterId) {
-      throw new ForbiddenException("Not message owner")
-    }
+    if (message.sender.id !== requesterId) throw new ForbiddenException('Not message owner');
+
     message.isDeleted = true;
-    return await this.messageRepo.save(message)
+    return await this.messageRepo.save(message);
   }
 
 
@@ -165,10 +158,10 @@ export class MessageService {
         mentions: true,
         reactions: true
       },
-      order: { createdAt: 'DESC' }, 
+      order: { createdAt: 'DESC' },
     });
   }
-  
+
   update(id: number, updateMessageDto: UpdateMessageDto) {
     return `This action updates a #${id} message`;
   }
