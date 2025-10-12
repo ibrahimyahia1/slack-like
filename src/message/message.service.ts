@@ -15,10 +15,6 @@ import { MessageReaction } from 'src/message-reaction/entities/message-reaction.
 export class MessageService {
   constructor(
     @InjectRepository(Message) private readonly messageRepo: Repository<Message>,
-    @InjectRepository(Channel) private readonly channelRepo: Repository<Channel>,
-    @InjectRepository(MessageMention) private readonly mentionRepo: Repository<MessageMention>,
-    @InjectRepository(MessageRead) private readonly messageReadRepo: Repository<MessageRead>,
-    @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectDataSource() private readonly dataSource: DataSource,
   ) { }
 
@@ -111,8 +107,8 @@ export class MessageService {
 
     if (message.sender.id !== requesterId) throw new ForbiddenException('Not message owner');
 
-    message.isDeleted = true;
-    return await this.messageRepo.save(message);
+    await this.messageRepo.softDelete(messageId);
+    return 'This message is soft deleted'
   }
 
 

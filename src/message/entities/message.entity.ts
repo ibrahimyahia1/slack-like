@@ -5,7 +5,7 @@ import { MessageReaction } from "src/message-reaction/entities/message-reaction.
 import { MessageRead } from "src/message-reads/entities/message-read.entity";
 import { StaredMessage } from "src/stared-message/entities/stared-message.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
 
 @Entity()
 @Unique(['clientMessageId', 'sender'])
@@ -30,10 +30,6 @@ export class Message {
 
     @Column({ default: false })
     isPinned: boolean;
-    
-    @Exclude({ toPlainOnly: true })
-    @Column({ select: false, default: false })
-    isDeleted: boolean;
 
     @Column({ nullable: true })
     clientMessageId?: string;
@@ -43,6 +39,9 @@ export class Message {
 
     @UpdateDateColumn()
     editedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt?: Date;
 
     @OneToMany(() => MessageReaction, reaction => reaction.message)
     reactions: MessageReaction[];

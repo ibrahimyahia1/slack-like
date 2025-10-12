@@ -47,8 +47,10 @@ export class MessageController {
     return this.messageService.editMessage(editorId, messageId, updateDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.messageService.remove(+id);
+  @Delete(':messageId')
+  @UseGuards(AuthGuard)
+  delete(@Param('messageId') messageId: number, @Req() req: any) {
+    const requesterId = req.user.id;
+    return this.messageService.softDeleteMessage(requesterId, messageId);
   }
 }
