@@ -8,17 +8,15 @@ import { AuthGuard } from 'src/user/guards/auth.guard';
 export class MessageController {
   constructor(private readonly messageService: MessageService) { }
 
-  @Post(':channelId')
+  @Post()
   @UseGuards(AuthGuard)
   async createMessage(
-    @Param('channelId') channelId: number,
     @Body() dto: CreateMessageDto,
     @Req() req: any,
   ) {
     const senderId = req.user.id;
     return this.messageService.createMessage(senderId, {
-      ...dto,
-      channelId,
+      ...dto
     });
   }
 

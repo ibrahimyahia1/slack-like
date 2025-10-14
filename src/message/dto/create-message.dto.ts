@@ -1,7 +1,9 @@
 import { PartialType } from "@nestjs/mapped-types";
-import { IsArray, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateMessageDto {
+    @IsNumber()
+    @IsNotEmpty()
     channelId: number;
 
     @IsNotEmpty()
