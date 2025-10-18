@@ -26,6 +26,8 @@ import { StaredMessage } from './stared-message/entities/stared-message.entity';
 import { MessageMention } from './message-mentions/entities/message-mention.entity';
 import { MessageReaction } from './message-reaction/entities/message-reaction.entity';
 import { ChatModule } from './chat/chat.module';
+import { WorkspaceInviteModule } from './workspace-invite/workspace-invite.module';
+import { WorkspaceInvite } from './workspace-invite/entities/workspace-invite.entity';
 
 
 @Module({
@@ -40,7 +42,7 @@ import { ChatModule } from './chat/chat.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [User, Workspace, WorkspaceMember, Role, Channel, ChannelMember, Message, MessageMention, MessageRead, MessageReaction, StaredMessage],
+        entities: [User, Workspace, WorkspaceMember, Role, Channel, ChannelMember, Message, MessageMention, MessageRead, MessageReaction, StaredMessage, WorkspaceInvite],
         synchronize: true,
         migrationsRun: true
       }),
@@ -54,7 +56,8 @@ import { ChatModule } from './chat/chat.module';
     MessageReactionModule,
     MessageMentionsModule,
     StaredMessageModule,
-    ChatModule
+    ChatModule,
+    WorkspaceInviteModule
   ],
   controllers: [AppController],
   providers: [AppService],
