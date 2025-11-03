@@ -1,3 +1,4 @@
+import { Channel } from "src/channel/entities/channel.entity";
 import { Message } from "src/message/entities/message.entity";
 import { User } from "src/user/entities/user.entity";
 import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -17,4 +18,8 @@ export class MessageMention {
 
     @CreateDateColumn()
     createdAt: Date;
+
+    @ManyToOne(() => Channel, channel => channel.mentions, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: "channel_id" })
+    channel: Channel;
 }

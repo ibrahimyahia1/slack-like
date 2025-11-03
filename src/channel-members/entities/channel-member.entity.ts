@@ -14,7 +14,7 @@ export class ChannelMember {
     @Column({ nullable: true })
     last_read_message_id?: number;
 
-    @ManyToOne(() => User, user => user.channelMember, { eager: true })
+    @ManyToOne(() => User, user => user.channelMembers, { eager: true })
     @JoinColumn({ name: "user_id" })
     user: User;
 

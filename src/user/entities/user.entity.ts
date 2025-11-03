@@ -25,13 +25,13 @@ export class User {
     password: string;
 
     @Column({ nullable: true })
-    displayed_name: string;
+    displayedName: string;
 
     @Column({ nullable: true })
     lastOnline: Date;
 
     @Column({ nullable: true })
-    avatar_url: string;
+    avatarUrl: string;
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
@@ -45,8 +45,8 @@ export class User {
     @OneToMany(() => Workspace, (workspace) => workspace.owner)
     ownedWorkspaces: Workspace[];
 
-    @ManyToOne(() => ChannelMember, channelMember => channelMember.user)
-    channelMember: ChannelMember;
+    @OneToMany(() => ChannelMember, channelMember => channelMember.user)
+    channelMembers: ChannelMember[];
 
     @OneToMany(() => Message, message => message.sender)
     messages: Message[]
