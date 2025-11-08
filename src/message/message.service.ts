@@ -19,7 +19,7 @@ export class MessageService {
   ) { }
 
 
-  async createMessage(senderId: number, dto: CreateMessageDto) {
+  async sendMessage(senderId: number, dto: CreateMessageDto) {
     return this.dataSource.transaction(async (manager) => {
       const message = manager.create(Message, {
         content: dto.content,
@@ -27,23 +27,36 @@ export class MessageService {
         sender: { id: senderId } as User,
         channel: { id: dto.channelId } as Channel,
         clientMessageId: dto.clientMessageId,
-      } as DeepPartial<Message>);
+      });
       const savedMessage = await manager.save(message);
 
       let mentionedUsers: User[] = [];
-      if (dto.mentions?.length) {
-        mentionedUsers = await manager.getRepository(User).find({
-          where: { id: In(dto.mentions) },
-        });
+      const originalMentions = dto.mentions || [];
 
-        const mentions = mentionedUsers.map((user) =>
-          manager.create(MessageMention, {
-            message: savedMessage,
-            user,
-          }),
-        );
-        await manager.save(mentions);
+      if (originalMentions.length > 0) {
+        const realUserIds = originalMentions.filter(id => id !== -1 && id !== senderId);
+
+        if (realUserIds.length > 0) {
+          mentionedUsers = await manager.getRepository(User).find({
+            where: { id: In(realUserIds) },
+          });
+
+          const mentions = mentionedUsers.map(user =>
+            manager.create(MessageMention, {
+              message: savedMessage,
+              user,
+            }),
+          );
+          await manager.save(mentions);
+        }
       }
+
+      await manager.save(
+        manager.create(MessageRead, {
+          message: savedMessage,
+          user: { id: senderId } as User,
+        }),
+      );
 
       const fullMessage = await manager.findOne(Message, {
         where: { id: savedMessage.id },
@@ -52,42 +65,12 @@ export class MessageService {
 
       return {
         ...fullMessage,
-        mentions: mentionedUsers
+        mentions: mentionedUsers,        //  For frontend UI 
+        mentionIds: originalMentions,    //  For WebSocket 
       };
     });
   }
 
-  async sendMessage(senderId: number, createMessageDto: CreateMessageDto) {
-    return await this.dataSource.transaction(async manager => {
-      const msg = manager.create(Message, {
-        content: createMessageDto.content,
-        content_type: createMessageDto.contentType ?? null,
-        sender: { id: senderId } as User,
-        channel: { id: createMessageDto.channelId } as Channel,
-        client_message_id: createMessageDto.clientMessageId ?? null,
-      });
-      const saved = await manager.save(msg)
-
-      if (createMessageDto.mentions?.length) {
-        const mentions = createMessageDto.mentions.map(uid => manager.create(MessageMention, {
-          message: saved,
-          user: { id: uid } as User
-        }));
-        await manager.save(mentions)
-      }
-
-      const read = manager.create(MessageRead, { message: saved, user: { id: senderId } as User })
-      await manager.save(read);
-
-      const result = await manager.findOne(Message, {
-        where: { id: saved.id, },
-        relations: {
-          sender: true
-        }
-      });
-      return result
-    })
-  }
 
   async editMessage(editorId: number, messageId: number, updateDto: UpdateMessageDto) {
     const message = await this.messageRepo.findOne({ where: { id: messageId }, relations: { sender: true } });

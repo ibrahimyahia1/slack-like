@@ -15,7 +15,8 @@ export class MessageMentionsController {
     @Query('channelId') channelId: number,
     @Req() req,
   ) {
-    const users = await this.messageMentionsService.searchMentions(q || '', channelId, req.user.id);
+    const requesterId = req.user.id;
+    const users = await this.messageMentionsService.searchMentions(q || '', channelId, requesterId);
     return {
       ok: true,
       users: users.map(u => ({

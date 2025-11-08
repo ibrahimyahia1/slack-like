@@ -15,10 +15,9 @@ export class MessageController {
     @Req() req: any,
   ) {
     const senderId = req.user.id;
-    return this.messageService.createMessage(senderId, {
-      ...dto
-    });
+    return this.messageService.sendMessage(senderId, dto);
   }
+
 
   @Get()
   findAll() {

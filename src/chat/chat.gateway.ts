@@ -58,13 +58,45 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage('send_message')
     async handleSendMessage(client: Socket, payload: any) {
         const userId = client.data.user.id;
-        const isMember = await this.channelMemberRepo.findOne({ where: { channel: { id: payload.channelId } as any, user: { id: userId } as any } });
-        if (!isMember) return client.emit('error', 'member not found')
+        const channelId = payload.channelId;
+        const isMember = await this.channelMemberRepo.findOne({
+            where: {
+                channel: { id: channelId } as any,
+                user: { id: userId } as any
+            }
+        });
+        if (!isMember) return client.emit('error', 'not a channel member');
         const msg = await this.messageService.sendMessage(userId, payload);
-        this.server.to(`channel_${payload.channelId}`).emit('new message', msg);
-        if (payload.mentions?.length) {
-            for (const uid of payload.mentions) {
-                this.server.to(`user_${uid}`).emit('mentioned', { by: userId, message: msg, channelId: payload.channelId });
+        this.server.to(`channel_${channelId}`).emit('new message', msg);
+        // USE mentionIds (which includes -1)
+        if (msg.mentionIds?.length) {
+            const hasAllMention = msg.mentionIds.includes(-1);
+            const realUserMentions = msg.mentionIds.filter(id => id !== -1);
+            // Notify real mentioned users
+            for (const uid of realUserMentions) {
+                if (uid !== userId) {
+                    this.server.to(`user_${uid}`).emit('mentioned', {
+                        by: userId,
+                        message: msg,
+                        channelId,
+                    });
+                }
+            }
+            // Notify ALL channel members for @all
+            if (hasAllMention) {
+                const members = await this.channelMemberRepo
+                    .createQueryBuilder('cm')
+                    .where('cm.channelId = :channelId', { channelId })
+                    .andWhere('cm.userId != :userId', { userId })
+                    .getMany();
+
+                for (const member of members) {
+                    this.server.to(`user_${member.id}`).emit('mentioned', {
+                        by: userId,
+                        message: msg,
+                        channelId,
+                    });
+                }
             }
         }
     }
