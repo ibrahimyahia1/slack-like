@@ -1,9 +1,10 @@
 import { Message } from "src/message/entities/message.entity";
 import { User } from "src/user/entities/user.entity";
-import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity()
 @Unique(['message', 'user'])
+@Index(['user', 'message'])
 export class MessageRead {
     @PrimaryGeneratedColumn()
     id: number;

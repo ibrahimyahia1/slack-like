@@ -1,32 +1,54 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMessageReadDto } from './dto/create-message-read.dto';
 import { UpdateMessageReadDto } from './dto/update-message-read.dto';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { ChannelMember } from 'src/channel-members/entities/channel-member.entity';
 import { MessageRead } from './entities/message-read.entity';
 import { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
+import { Message } from 'src/message/entities/message.entity';
 
 @Injectable()
 export class MessageReadsService {
   constructor(
     @InjectRepository(ChannelMember) private readonly channelMemberRepo: Repository<ChannelMember>,
     @InjectRepository(MessageRead) private readonly messageReadRepo: Repository<MessageRead>,
+    @InjectDataSource() private readonly dataSource: DataSource,
   ) { }
 
   async markAsRead(userId: number, channelId: number, lastReadMessageId: number) {
-    await this.channelMemberRepo.createQueryBuilder()
-      .update()
-      .set({ last_read_message_id: lastReadMessageId })
-      .where('channel_id = :channelId AND user_id = :userId', { channelId, userId })
-      .execute();
+    return this.dataSource.transaction(async (manager) => {
+      // Use 'lastReadMessage' (entity property) + set as relation
+      await manager
+        .getRepository(ChannelMember)
+        .createQueryBuilder()
+        .update()
+        .set({
+          lastReadMessage: { id: lastReadMessageId } as Message
+        })
+        .where('channel_id = :channelId AND user_id = :userId', { channelId, userId })
+        .execute();
 
-    const exists = await this.messageReadRepo.findOne({ where: { message: { id: lastReadMessageId } as any, user: { id: userId } as any } });
-    if (!exists) {
-      const mr = this.messageReadRepo.create({ message: { id: lastReadMessageId } as any, user: { id: userId } as any });
-      await this.messageReadRepo.save(mr);
-    }
+      // Optional: ensure MessageRead exists
+      const readRepo = manager.getRepository(MessageRead);
+      const exists = await readRepo.exist({
+        where: {
+          message: { id: lastReadMessageId },
+          user: { id: userId }
+        },
+      });
 
-    return { channelId, messageId: lastReadMessageId, userId };
+      if (!exists) {
+        await readRepo.save(
+          readRepo.create({
+            message: { id: lastReadMessageId },
+            user: { id: userId },
+          }),
+        );
+      }
+
+      return { channelId, messageId: lastReadMessageId, userId };
+    });
   }
 
   async getReadReceipts(messageId: number) {
