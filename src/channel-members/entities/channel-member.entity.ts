@@ -11,9 +11,6 @@ export class ChannelMember {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column({ nullable: true })
-    last_read_message_id?: number;
-
     @ManyToOne(() => User, user => user.channelMembers, { eager: true })
     @JoinColumn({ name: "user_id" })
     user: User;
@@ -26,7 +23,7 @@ export class ChannelMember {
     @JoinColumn({ name: "channel_id" })
     channel: Channel;
 
-    @ManyToOne(() => Message, { nullable: true })
-    @JoinColumn({ name: 'last_read_message_id' }) 
+    @ManyToOne(() => Message, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'last_read_message_id' })
     lastReadMessage?: Message;
 }
